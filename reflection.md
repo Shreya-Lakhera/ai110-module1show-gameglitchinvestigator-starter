@@ -5,8 +5,16 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 ## 1. What was broken when you started?
 
 - What did the game look like the first time you ran it?
+
+I started by reviewing app.py and logic_utils.py. Testing the helper functions showed that the hints were backwards: a guess above the secret told the player to go higher. I also found that alternating attempts compared numbers as text, which could incorrectly label 9 as higher than 50. Reviewing the reset code showed that New Game did not clear the won or lost status, although I did not test that behavior in the browser. All four functions in logic_utils.py were unfinished and raised NotImplementedError when called.
+
 - List at least two concrete bugs you noticed at the start  
   (for example: "the hints were backwards").
+
+- The hints were backwards: guessing above the secret told the player to go higher, and guessing below it told them to go lower.
+- On alternating attempts, numbers were compared as text, so a guess of 9 could incorrectly count as higher than a secret of 50.
+- The New Game button did not reset the game’s status, leaving players unable to play again after winning or losing.
+
 
 **Bug Reproduction Log**
 
@@ -14,9 +22,10 @@ Document at least 3 bugs you found. Add rows as needed.
 
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
 |-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+| `check_guess(60, 50)` | Identify the guess as too high and tell the player to go lower. | Correctly identified “Too High,” but instructed the player to go higher. | `('Too High', '📈 Go HIGHER!')` |
+| `check_guess(40, 50)` | Identify the guess as too low and tell the player to go higher. | Correctly identified “Too Low,” but instructed the player to go lower. | `('Too Low', '📉 Go LOWER!')` |
+| `check_guess(9, "50")` | Compare the numeric values and identify 9 as too low. | Compared strings and incorrectly identified 9 as too high. | `('Too High', '📈 Go HIGHER!')` |
+| `logic_utils.check_guess(50, 50)` | Return a winning outcome and message. | Raised an error because the function was not implemented. | `NotImplementedError: Refactor this function from app.py into logic_utils.py` |
 
 ---
 
