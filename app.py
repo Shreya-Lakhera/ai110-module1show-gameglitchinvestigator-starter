@@ -1,6 +1,9 @@
 import random
+
 import streamlit as st
+
 from logic_utils import check_guess
+
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -47,6 +50,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
     return current_score
 
+
 def reset_game(difficulty):
     low, high = get_range_for_difficulty(difficulty)
     st.session_state.game_difficulty = difficulty
@@ -58,10 +62,52 @@ def reset_game(difficulty):
     st.session_state[f"guess_input_{difficulty}"] = ""
 
 
+def render_hint(outcome):
+    """Show a direction using both text and a distinct color."""
+    if outcome == "Too High":
+        st.warning("📉 Too high — Go LOWER!")
+    elif outcome == "Too Low":
+        st.info("📈 Too low — Go HIGHER!")
+    else:
+        st.success("🎯 Correct guess!")
+
+
+def render_round_summary(attempt_limit, show_hint):
+    """Display round metrics and valid guesses without revealing the secret."""
+    st.subheader("Your round")
+    attempts = st.session_state.attempts
+    used, remaining, score = st.columns(3)
+    used.metric("Guesses used", attempts)
+    remaining.metric("Attempts left", max(0, attempt_limit - attempts))
+    score.metric("Score", st.session_state.score)
+    st.progress(min(1.0, attempts / attempt_limit))
+
+    guesses = [
+        guess for guess in st.session_state.history
+        if isinstance(guess, int)
+    ]
+    if not guesses:
+        st.caption("Your guesses will appear here. Make your first guess!")
+        return
+
+    rows = []
+    for number, guess in enumerate(guesses, 1):
+        row = {"Attempt": number, "Guess": guess}
+        if show_hint:
+            outcome = check_guess(guess, st.session_state.secret)
+            row["Result"] = {
+                "Win": "🎯 Correct",
+                "Too High": "📉 Too high — try lower",
+                "Too Low": "📈 Too low — try higher",
+            }[outcome]
+        rows.append(row)
+    st.table(rows)
+
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
-st.caption("An AI-generated guessing game. Something is off.")
+st.caption("Find the secret number. Use each hint to narrow your next guess.")
 
 st.sidebar.header("Settings")
 
@@ -117,20 +163,16 @@ raw_guess = st.text_input(
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    submit = st.button("Submit Guess 🚀")
+    submit = st.button(
+        "Submit Guess 🚀",
+        disabled=st.session_state.status != "playing",
+    )
 with col2:
     st.button("New Game 🔁", on_click=reset_game, args=(difficulty,))
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
-if st.session_state.status != "playing":
-    if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
-    else:
-        st.error("Game over. Start a new game to try again.")
-    st.stop()
-
-if submit:
+if submit and st.session_state.status == "playing":
     ok, guess_int, err = parse_guess(raw_guess)
 
     if not ok:
@@ -143,14 +185,8 @@ if submit:
         st.session_state.history.append(guess_int)
 
         outcome = check_guess(guess_int, st.session_state.secret)
-        message = {
-            "Win": "🎉 Correct!",
-            "Too High": "📉 Go LOWER!",
-            "Too Low": "📈 Go HIGHER!",
-        }[outcome]
-
         if show_hint:
-            st.warning(message)
+            render_hint(outcome)
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -161,18 +197,22 @@ if submit:
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
-            st.success(
-                f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}"
-            )
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
-                st.error(
-                    f"Out of attempts! "
-                    f"The secret was {st.session_state.secret}. "
-                    f"Score: {st.session_state.score}"
-                )
+
+if st.session_state.status == "won":
+    st.success(
+        f"🏆 You won! The secret was {st.session_state.secret}. "
+        f"Final score: {st.session_state.score}"
+    )
+elif st.session_state.status == "lost":
+    st.error(
+        f"Out of attempts! The secret was {st.session_state.secret}. "
+        f"Score: {st.session_state.score}"
+    )
+if st.session_state.status != "playing":
+    st.caption("Click New Game to start another round.")
 
 attempts_banner.info(
     f"Guess a number between {low} and {high}. "
@@ -180,4 +220,4 @@ attempts_banner.info(
 )
 
 st.divider()
-st.caption("Built by an AI that claims this code is production-ready.")
+render_round_summary(attempt_limit, show_hint)

@@ -49,9 +49,21 @@ Corrected the hint directions, made New Game reset the status, attempts, score, 
 ## 🧪 Test Results
 
 ```
-7 passed in 1.58s
+8 passed in 2.35s
 ```
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+- [x] Enhanced UI: I added clearer hints and a round summary so it is easier
+  to keep track of the game.
+
+In `app.py`, `render_hint()` shows yellow hints for guesses that are too
+high, blue hints for guesses that are too low, and green feedback for a
+correct guess. Each message includes an emoji and text, so players do not
+have to rely on color alone.
+
+`render_round_summary()` shows guesses used, attempts left, score, a progress
+bar, and a table of valid guesses. Turning off Show hint also hides results
+in the table. The summary stays visible after winning or losing, and
+`reset_game()` clears it for the next round. Invalid guesses do not add rows
+or use attempts. The secret stays hidden until the round ends.
