@@ -39,21 +39,17 @@ Corrected the hint directions, made New Game reset the status, attempts, score, 
 
 ## 📸 Demo Walkthrough
 
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
-
 1. Launch the app using python -m streamlit run app.py.
 2. Choose Easy, Normal, or Hard, then click New Game to start a round using that difficulty.
 3. Enter a whole number within the displayed range and click Submit Guess. With hints enabled, “Too High” now says “Go LOWER!” and “Too Low” says “Go HIGHER!”
-4. Continue guessing until you win or run out of attempts. Alternating attempts can still misclassify guesses because the text-comparison bug remains.
+4. Keep guessing until you win or run out of attempts.
 5. Click New Game again. The input, score, history, and attempts clear, and you can play again after either winning or losing.
 
 
 ## 🧪 Test Results
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# Initial run collected three tests, and all failed because check_guess() was a placeholder.
+7 passed in 1.58s
 ```
 
 ## 🚀 Stretch Features

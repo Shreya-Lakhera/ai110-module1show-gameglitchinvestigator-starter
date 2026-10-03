@@ -50,7 +50,7 @@ One AI suggestion I did not accept as a complete fix was adding only st.session_
   and what it showed you about your code.
 - Did AI help you design or understand any tests? How?
 
-I judged a fix by checking whether the original problem could still be reproduced, rather than assuming that a code change was enough. After I reported that the first New Game fix was still not working as expected and had to edit it again. 
+I checked the game again and shared what was still wrong. Codex added tests for difficulty changes, attempts, and resets. All seven tests passed after the fixes.
 
 ---
 
