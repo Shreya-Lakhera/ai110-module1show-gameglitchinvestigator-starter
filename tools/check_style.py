@@ -3,6 +3,7 @@
 This is not a replacement for a full pycodestyle or Ruff check.
 """
 
+import ast
 from pathlib import Path
 
 
@@ -14,7 +15,13 @@ def main():
     paths += sorted((root / "tools").glob("*.py"))
     violations = 0
     for path in paths:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        source = path.read_text(encoding="utf-8")
+        lines = source.splitlines()
+        function_starts = {
+            min([node.lineno] + [d.lineno for d in node.decorator_list])
+            for node in ast.parse(source).body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
         for number, line in enumerate(lines, 1):
             messages = []
             if len(line) > 79:
@@ -23,7 +30,7 @@ def main():
                 messages.append("W291 trailing whitespace")
             if "\t" in line:
                 messages.append("W191 tab character")
-            if line.startswith("def ") and number > 1:
+            if number in function_starts and number > 1:
                 blanks = 0
                 for previous in reversed(lines[:number - 1]):
                     if previous.strip():

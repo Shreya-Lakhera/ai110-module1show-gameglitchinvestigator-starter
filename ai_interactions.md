@@ -56,11 +56,44 @@ current Streamlit session, not permanently or across different users.
 
 > Document how you used AI to help generate or improve tests.
 
+**Prompt used:**
+
+```text
+At least three pytest cases targeting complex edge cases (e.g., handling
+non-numeric strings, negative numbers, or empty inputs) are implemented.
+Tests are specific and pass successfully. Terminal output showing all
+tests passing is pasted as a fenced code block in the README.
+ai_interactions.md records the test-generation prompt(s) and a short
+rationale for each edge case chosen. add this too
+```
+
+Codex added four separately collected pytest cases through parametrization
+in `tests/test_app.py`. Each starts with four wrong guesses on Hard, submits
+the invalid input twice, and then wins with 50 on the last allowed attempt.
+The checks cover the exact error, unchanged attempts, score, secret, and
+valid-guess table, plus the final win and high-score update.
+
 | Edge Case | Prompt Used | AI-Suggested Test | Did It Pass? | Your Reasoning |
 |-----------|-------------|-------------------|--------------|----------------|
-| | | | | |
-| | | | | |
-| | | | | |
+| Empty input (`""`) | Prompt above | `empty-input`: shows "Enter a guess." and preserves the final attempt. | Yes | An accidental empty submission should not end the round. |
+| Non-numeric text (`"abc"`) | Prompt above | `non-numeric`: shows "That is not a number." without a crash or score change. | Yes | Typing letters should give a clear error and let the player try again. |
+| Negative number (`"-1"`) | Prompt above | `negative-number`: rejects the guess as outside 1–50 and preserves round state. | Yes | Parsing a number does not mean it is valid for the game. |
+| Above the Hard range (`"51"`) | Prompt above | `above-hard-range`: rejects 51, then accepts 50 as a final-attempt win. | Yes | This checks both the upper range boundary and winning on the last attempt. |
+
+**Actual terminal output:**
+
+```text
+.\.venv-1\Scripts\python.exe -B -m pytest -q -p no:cacheprovider
+..............                                                           [100%]
+14 passed in 4.30s
+
+python -B tools/check_style.py
+Basic style check: 0 violations in 5 files.
+```
+
+No game-code changes were needed for these cases. Codex corrected the basic
+style checker in `tools/check_style.py` to check spacing before decorators,
+instead of incorrectly flagging a decorated test function.
 
 ---
 

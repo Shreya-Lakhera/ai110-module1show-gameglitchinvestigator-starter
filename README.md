@@ -50,8 +50,10 @@ Corrected the hint directions, made New Game reset the status, attempts, score, 
 
 ## 🧪 Test Results
 
-```
-10 passed in 3.63s
+```text
+.\.venv-1\Scripts\python.exe -B -m pytest -q -p no:cacheprovider
+..............                                                           [100%]
+14 passed in 4.30s
 ```
 
 ## 🚀 Stretch Features
@@ -82,3 +84,14 @@ In `app.py`, `record_high_score()` updates the records after a win, and
 state, so a new session starts fresh; they are not saved to disk. The
 existing scoring rules are unchanged. The Agent Workflow section in
 `ai_interactions.md` lists the files changed and the automated checks.
+
+- [x] Advanced edge-case testing.
+
+Codex added four pytest cases in `tests/test_app.py` using
+`test_invalid_input_preserves_last_attempt()`. They cover empty input,
+non-numeric text, negative numbers, and guesses above the Hard range.
+Each case tries the bad input twice with one attempt left, checks that the
+round stays playable without changing the score or valid-guess table, then
+wins with 50 on the final attempt. All four cases and the existing tests
+passed. The prompt and reasons for these cases are in the Test Generation
+section of `ai_interactions.md`.

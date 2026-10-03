@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 
@@ -64,6 +65,56 @@ def test_invalid_guesses_do_not_use_attempts():
         assert app.error
         assert app.session_state.attempts == 0
         assert "Attempts left: 8" in app.info[0].value
+
+
+@pytest.mark.parametrize(
+    "raw_guess, expected_error",
+    [
+        pytest.param("", "Enter a guess.", id="empty-input"),
+        pytest.param("abc", "That is not a number.", id="non-numeric"),
+        pytest.param(
+            "-1", "Enter a number between 1 and 50.", id="negative-number"
+        ),
+        pytest.param(
+            "51", "Enter a number between 1 and 50.", id="above-hard-range"
+        ),
+    ],
+)
+def test_invalid_input_preserves_last_attempt(raw_guess, expected_error):
+    """Rejected input must not exhaust a round or prevent a final win."""
+    app = AppTest.from_file(APP, default_timeout=10).run()
+    app.sidebar.selectbox[0].select("Hard").run()
+    app.session_state.secret = 50
+    for _ in range(4):
+        app.text_input[0].set_value("40")
+        app.button[0].click().run()
+    score_before = app.session_state.score
+    history_before = app.main.table[0].value.copy()
+
+    # Repeated bad submissions must leave the last valid attempt available.
+    for _ in range(2):
+        app.text_input[0].set_value(raw_guess)
+        app.button[0].click().run()
+        assert not app.exception
+        assert app.error[0].value == expected_error
+        assert app.session_state.attempts == 4
+        assert app.session_state.score == score_before
+        assert app.session_state.secret == 50
+        assert app.session_state.status == "playing"
+        assert app.session_state.high_scores == {}
+        assert app.main.table[0].value.equals(history_before)
+        assert "Attempts left: 1" in app.info[0].value
+
+    # The upper boundary is valid, and a win on the last attempt counts.
+    app.text_input[0].set_value("50")
+    app.button[0].click().run()
+    assert not app.exception
+    assert not app.error
+    assert app.session_state.status == "won"
+    assert app.session_state.attempts == 5
+    assert "Attempts left: 0" in app.info[0].value
+    assert len(app.main.table[0].value) == 5
+    assert app.session_state.high_scores["Hard"] == app.session_state.score
 
 
 def test_summary_tracks_guesses_and_respects_hidden_hints():
