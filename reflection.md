@@ -18,6 +18,8 @@ I started by reviewing app.py and logic_utils.py. Testing the helper functions s
 
 **Bug Reproduction Log**
 
+In the game, I entered 45 while the range showed 1–50. It revealed a secret of 72 and said game over while still showing one attempt left. I expected a secret within the range and zero attempts left.
+
 Document at least 3 bugs you found. Add rows as needed.
 
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
@@ -35,7 +37,7 @@ Document at least 3 bugs you found. Add rows as needed.
 I used Codex to identify the issue and understand the logic
 
 - Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
-It identified the reversed hints so too high was lower and too low was high.
+Codex explained that the hint messages were reversed. That was correct because a guess above the secret needs a lower guess. Codex checked 60 against 50 and confirmed the corrected message said ‘Go LOWER!’
 
 - Give one example of an AI suggestion you did not accept as written (including what the AI suggested, why you rejected or changed it, and how you verified your version). It does not have to be a suggestion that was wrong: over-engineered, out of scope, harder to read, or a poor fit for this codebase all count.
 
