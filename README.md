@@ -44,12 +44,14 @@ Corrected the hint directions, made New Game reset the status, attempts, score, 
 3. Enter a whole number within the displayed range and click Submit Guess. With hints enabled, “Too High” now says “Go LOWER!” and “Too Low” says “Go HIGHER!”
 4. Keep guessing until you win or run out of attempts.
 5. Click New Game again. The input, score, history, and attempts clear, and you can play again after either winning or losing.
+6. After a win, check Session high scores in the sidebar. Start another
+   round or change difficulty; the records stay for the current session.
 
 
 ## 🧪 Test Results
 
 ```
-8 passed in 2.35s
+10 passed in 3.63s
 ```
 
 ## 🚀 Stretch Features
@@ -67,3 +69,16 @@ bar, and a table of valid guesses. Turning off Show hint also hides results
 in the table. The summary stays visible after winning or losing, and
 `reset_game()` clears it for the next round. Invalid guesses do not add rows
 or use attempts. The secret stays hidden until the round ends.
+
+- [x] Agent Mode feature: Session high-score tracker.
+
+I used Codex to add a high-score tracker in the sidebar. It keeps the best
+winning score for Easy, Normal, and Hard separately. A lower score or a loss
+does not replace a record, and New Game keeps the records while clearing
+the current round. Before the first win, the table shows "No wins yet".
+
+In `app.py`, `record_high_score()` updates the records after a win, and
+`render_high_scores()` displays them. Records live in Streamlit session
+state, so a new session starts fresh; they are not saved to disk. The
+existing scoring rules are unchanged. The Agent Workflow section in
+`ai_interactions.md` lists the files changed and the automated checks.

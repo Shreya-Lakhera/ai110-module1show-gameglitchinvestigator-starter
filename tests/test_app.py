@@ -69,19 +69,19 @@ def test_invalid_guesses_do_not_use_attempts():
 def test_summary_tracks_guesses_and_respects_hidden_hints():
     app = AppTest.from_file(APP, default_timeout=10).run()
     app.session_state.secret = 50
-    assert not app.table
+    assert not app.main.table
     for guess in (60, 40):
         app.text_input[0].set_value(str(guess))
         app.button[0].click().run()
         assert not app.exception
-    rows = app.table[0].value
+    rows = app.main.table[0].value
     assert rows["Guess"].tolist() == [60, 40]
     assert "Too high" in rows["Result"].iloc[0]
     assert "Too low" in rows["Result"].iloc[1]
-    assert app.metric[0].value == "2"
-    assert app.metric[1].value == "6"
+    assert app.main.metric[0].value == "2"
+    assert app.main.metric[1].value == "6"
     app.checkbox[0].uncheck().run()
-    assert "Result" not in app.table[0].value.columns
+    assert "Result" not in app.main.table[0].value.columns
     app.text_input[0].set_value("50")
     app.button[0].click().run()
     assert app.session_state.status == "won"
@@ -89,9 +89,65 @@ def test_summary_tracks_guesses_and_respects_hidden_hints():
     assert not app.exception
     assert app.button[0].disabled
     assert "You won!" in app.success[0].value
-    assert len(app.table[0].value) == 3
+    assert len(app.main.table[0].value) == 3
     app.button[1].click().run()
     assert not app.exception
-    assert not app.table
+    assert not app.main.table
     assert not app.button[0].disabled
-    assert app.metric[0].value == "0"
+    assert app.main.metric[0].value == "0"
+
+
+def test_high_scores_keep_best_win_and_survive_round_resets():
+    app = AppTest.from_file(APP, default_timeout=10).run()
+    assert app.session_state.high_scores == {}
+    assert app.sidebar.metric[0].value == "—"
+    # A second-attempt win earns 65 with the existing scoring rules.
+    app.session_state.secret = 50
+    for guess in (40, 50):
+        app.text_input[0].set_value(str(guess))
+        app.button[0].click().run()
+    assert app.session_state.high_scores == {"Normal": 65}
+    assert app.sidebar.metric[0].value == "65"
+    app.button[1].click().run()
+    assert app.session_state.score == 0
+    assert app.session_state.high_scores == {"Normal": 65}
+    # A better win replaces the record.
+    app.text_input[0].set_value(str(app.session_state.secret))
+    app.button[0].click().run()
+    assert app.session_state.high_scores == {"Normal": 80}
+    # A lower win cannot reduce the record.
+    app.button[1].click().run()
+    app.session_state.secret = 50
+    for guess in (40, 50):
+        app.text_input[0].set_value(str(guess))
+        app.button[0].click().run()
+    assert app.session_state.high_scores == {"Normal": 80}
+    app.sidebar.selectbox[0].select("Hard").run()
+    assert app.sidebar.metric[0].value == "—"
+    app.text_input[0].set_value(str(app.session_state.secret))
+    app.button[0].click().run()
+    assert app.session_state.high_scores == {"Normal": 80, "Hard": 80}
+    app.sidebar.selectbox[0].select("Normal").run()
+    assert app.sidebar.metric[0].value == "80"
+    app.run()
+    assert not app.exception
+    assert app.session_state.high_scores == {"Normal": 80, "Hard": 80}
+
+
+def test_losses_do_not_record_scores_and_new_sessions_start_empty():
+    app = AppTest.from_file(APP, default_timeout=10).run()
+    app.sidebar.selectbox[0].select("Hard").run()
+    app.session_state.secret = 50
+    for _ in range(5):
+        app.text_input[0].set_value("40")
+        app.button[0].click().run()
+    assert not app.exception
+    assert app.session_state.status == "lost"
+    assert app.session_state.high_scores == {}
+    app.button[1].click().run()
+    app.text_input[0].set_value(str(app.session_state.secret))
+    app.button[0].click().run()
+    assert app.session_state.high_scores == {"Hard": 80}
+    fresh = AppTest.from_file(APP, default_timeout=10).run()
+    assert not fresh.exception
+    assert fresh.session_state.high_scores == {}

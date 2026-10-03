@@ -10,15 +10,45 @@
 
 **What task did you give the agent?**
 
-<!-- Describe the goal you asked the agent to accomplish -->
+I asked Codex to add a meaningful feature for the Agent Mode requirement
+and update the README and this workflow log. Codex chose a session high-score
+tracker that keeps a separate record for each difficulty.
+
+My request: "please do this too and update readme", with the Feature
+Expansion via Agent Mode rubric requiring a working feature and a log of
+the task, modified files, completed work, and manual corrections.
 
 **What did the agent do?**
 
-<!-- List the steps the agent took (files edited, commands run, etc.) -->
+Codex inspected the app, implemented the tracker, added tests, and ran them.
+
+- `app.py`: Added `record_high_score()` and `render_high_scores()`. Winning
+  rounds update the sidebar records only if the score beats the previous
+  best. New Game and difficulty changes keep the records for this session.
+- `tests/test_app.py`: Added checks for improved and lower winning scores,
+  losses, round resets, difficulty changes, reruns, and fresh sessions.
+  Updated existing UI checks to target the main game table separately from
+  the new sidebar table.
+- `README.md`: Added feature details, code references, demo instructions,
+  the session-only limitation, and the latest test result.
+- `ai_interactions.md`: Recorded the task, changes, and verification here.
+
+```text
+.\.venv-1\Scripts\python.exe -B -m pytest -q -p no:cacheprovider
+..........                                                               [100%]
+10 passed in 3.63s
+
+python -B tools/check_style.py
+Basic style check: 0 violations in 5 files.
+```
 
 **What did you have to verify or fix manually?**
 
-<!-- Describe anything the agent got wrong or that required human review -->
+No manual corrections have been made for this feature yet. Codex ran the
+automated checks; I have not reported a separate browser test of the tracker.
+For a manual check, I can win a round, click New Game, and confirm the best
+score stays while the round score resets. Records are only saved for the
+current Streamlit session, not permanently or across different users.
 
 ---
 

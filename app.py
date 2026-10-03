@@ -62,6 +62,36 @@ def reset_game(difficulty):
     st.session_state[f"guess_input_{difficulty}"] = ""
 
 
+def record_high_score(difficulty):
+    """Keep the best winning score per difficulty for this session."""
+    best = st.session_state.high_scores.get(difficulty)
+    score = st.session_state.score
+    if best is None or score > best:
+        st.session_state.high_scores[difficulty] = score
+
+
+def render_high_scores(difficulty):
+    """Show session records without mixing scores across difficulties."""
+    st.sidebar.header("🏆 Session high scores")
+    best = st.session_state.high_scores.get(difficulty)
+    st.sidebar.metric(
+        f"Best winning score · {difficulty}",
+        "—" if best is None else best,
+    )
+    st.sidebar.table([
+        {
+            "Difficulty": level,
+            "Best score": str(st.session_state.high_scores[level])
+            if level in st.session_state.high_scores else "No wins yet",
+        }
+        for level in ("Easy", "Normal", "Hard")
+    ])
+    st.sidebar.caption(
+        "Winning rounds only. Records survive New Game and difficulty "
+        "changes during this session. A new session starts fresh."
+    )
+
+
 def render_hint(outcome):
     """Show a direction using both text and a distinct color."""
     if outcome == "Too High":
@@ -148,6 +178,9 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+if "high_scores" not in st.session_state:
+    st.session_state.high_scores = {}
+
 st.subheader("Make a guess")
 
 attempts_banner = st.empty()
@@ -197,6 +230,7 @@ if submit and st.session_state.status == "playing":
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
+            record_high_score(difficulty)
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
@@ -221,3 +255,4 @@ attempts_banner.info(
 
 st.divider()
 render_round_summary(attempt_limit, show_hint)
+render_high_scores(difficulty)
