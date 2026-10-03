@@ -26,20 +26,27 @@ It wrote the code, ran away, and now the game is unplayable.
 ## 📝 Document Your Experience
 
 - [ ] Describe the game's purpose.
+
+A number-guessing game where players choose a difficulty and try to find a secret number within a limited number of attempts.
+
 - [ ] Detail which bugs you found.
+
+Reversed hints, text-based comparisons on alternating attempts, incomplete New Game resets, incorrect ranges when restarting, and unimplemented functions in logic_utils.py.
+
 - [ ] Explain what fixes you applied.
+
+Corrected the hint directions, made New Game reset the status, attempts, score, history, and input, and ensured new secrets match the selected difficulty. Also corrected the initial attempt count and displayed range, and removed Developer Debug Info.
 
 ## 📸 Demo Walkthrough
 
 Describe your fixed game in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. Launch the app using python -m streamlit run app.py.
+2. Choose Easy, Normal, or Hard, then click New Game to start a round using that difficulty.
+3. Enter a whole number within the displayed range and click Submit Guess. With hints enabled, “Too High” now says “Go LOWER!” and “Too Low” says “Go HIGHER!”
+4. Continue guessing until you win or run out of attempts. Alternating attempts can still misclassify guesses because the text-comparison bug remains.
+5. Click New Game again. The input, score, history, and attempts clear, and you can play again after either winning or losing.
 
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
 
 ## 🧪 Test Results
 
