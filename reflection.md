@@ -32,8 +32,14 @@ Document at least 3 bugs you found. Add rows as needed.
 ## 2. How did you use AI as a teammate?
 
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
+I used Codex to identify the issue and understand the logic
+
 - Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
+It identified the reversed hints so too high was lower and too low was high.
+
 - Give one example of an AI suggestion you did not accept as written (including what the AI suggested, why you rejected or changed it, and how you verified your version). It does not have to be a suggestion that was wrong: over-engineered, out of scope, harder to read, or a poor fit for this codebase all count.
+
+One AI suggestion I did not accept as a complete fix was adding only st.session_state.status = "playing" to the New Game handler. After that change, I reported that the reset still was not working as expected and that the developer debug panel was still showing.
 
 ---
 
@@ -44,11 +50,15 @@ Document at least 3 bugs you found. Add rows as needed.
   and what it showed you about your code.
 - Did AI help you design or understand any tests? How?
 
+I judged a fix by checking whether the original problem could still be reproduced, rather than assuming that a code change was enough. After I reported that the first New Game fix was still not working as expected and had to edit it again. 
+
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+
+I would explain a Streamlit rerun as the app reading its script again from top to bottom when someone interacts with a control. Ordinary variables can be recreated during that process, while session state acts like a notebook that remembers values between reruns for that user's session. In this game, that notebook holds the secret number, attempts, score, history, and whether the player has won or lost. Starting a new game means deliberately resetting those values.
 
 ---
 
@@ -58,3 +68,5 @@ Document at least 3 bugs you found. Add rows as needed.
   - This could be a testing habit, a prompting strategy, or a way you used Git.
 - What is one thing you would do differently next time you work with AI on a coding task?
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+
+One habit I want to reuse is recording a specific input, its expected result, and its actual result before changing code, then checking the same behavior afterward. Next time, I would ask AI to test the complete user action earlier, including restarting after both a win and a loss, instead of relying only on a small function check. This project showed me that AI-generated code can look reasonable while still leaving parts of the user experience broken.
