@@ -53,7 +53,7 @@ Describe your fixed game in numbered steps so a reader can follow along without 
 ```
 # Paste your pytest output here, e.g.:
 # pytest tests/
-# ========================= X passed in 0.XXs =========================
+# Initial run collected three tests, and all failed because check_guess() was a placeholder.
 ```
 
 ## 🚀 Stretch Features
